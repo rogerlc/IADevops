@@ -1,0 +1,28 @@
+name: Conventional Commits
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-pr-title:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    env:
+      PR_TITLE: ${{ github.event.pull_request.title }}
+    steps:
+      - name: Check Conventional Commits format
+        shell: bash
+        run: |
+          pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-zA-Z0-9._/-]+\))?!?: .+$'
+
+          if [[ ! "$PR_TITLE" =~ $pattern ]]; then
+            echo "Invalid pull request title: $PR_TITLE"
+            echo "Expected: type(scope)!: description"
+            exit 1
+          fi
